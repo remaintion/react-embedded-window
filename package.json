@@ -1,12 +1,12 @@
 {
   "name": "react-embedded-window",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "React embeded popup window",
   "main": "./lib/index.js",
   "scripts": {
     "movefile": "cp -R src lib",
     "prepublish": "npm run build",
-    "build": "npm run movefile && babel src --out-dir lib"
+    "build": "babel src --out-dir lib"
   },
   "repository": {
     "type": "git",
