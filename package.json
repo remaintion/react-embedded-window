@@ -4,10 +4,9 @@
   "description": "React embeded popup window",
   "main": "./lib/index.js",
   "scripts": {
-    "movefile": "cp -p src/index.js lib/index.js",
+    "movefile": "cp -R src lib",
     "prepublish": "npm run build",
-    "build:live": "webpack --config webpack.config.build.js",
-    "build": "npm run build:live && babel src/index.js --out-file lib/index.js"
+    "build": "npm run movefile && babel src --out-dir lib"
   },
   "repository": {
     "type": "git",
