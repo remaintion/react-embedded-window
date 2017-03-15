@@ -10,6 +10,7 @@ class Live extends React.Component {
       position: {
         x: 0, y: 0,
       },
+      width: 300,
       deltaWidth: 0,
       activeButton: false,
       isHidden: false,
