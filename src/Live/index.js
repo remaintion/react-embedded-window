@@ -107,7 +107,7 @@ class Live extends React.Component {
         <iframe
           draggable
           src={url}
-          style={{ border: 'none', position: 'fixed', top: y, left: x, width: this.state.width }}
+          style={{ border: 'none', position: 'fixed', top: y, left: x, width: this.state.width, zIndex: 1 }}
           width={this.state.width}
           height={this.state.width * ratio}
           frameBorder={0}
