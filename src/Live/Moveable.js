@@ -1,23 +1,8 @@
 import React, { PropTypes } from 'react';
-import Moveable from './Moveable';
 import close from './components/close';
 import move from './components/move';
 
-const potisions = {
-  top: {
-    top: 42,
-  },
-  left: {
-    left: 0,
-  },
-  right: {
-    right: 0,
-  },
-  bottom: {
-    bottom: 0,
-  }
-}
-class Live extends React.Component {
+class Moveable extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -35,7 +20,6 @@ class Live extends React.Component {
   componentWillReceiveProps(nextProps) {
     this.setState({
       iframe: nextProps.iframe,
-      position: nextProps.position,
     });
   }
   handleDrag(e) {
@@ -43,6 +27,12 @@ class Live extends React.Component {
   }
   render() {
     if (this.state.iframe === '') return (<div></div>);
+    const { iframe } = this.state;
+    const { x, y } = this.state.position;
+    const url = iframe.match(/src="([^\s]+)"/g)[0].replace(/src=/, '').replace(/"/g, '');
+    const width = iframe.match(/width="([^\s]+)"/g)[0].match(/\d+/g);
+    const height = iframe.match(/height="([^\s]+)"/g)[0].match(/\d+/g);
+    const ratio = height / width;
     if (this.state.isHidden) {
       return (
         <div
@@ -66,29 +56,24 @@ class Live extends React.Component {
         </div>
       );
     }
-    if (this.props.moveable) {
-      return <Moveable {...this.props} />
-    }
-    const { iframe } = this.state;
-    const { x, y } = this.state.position;
-    const url = iframe.match(/src="([^\s]+)"/g)[0].replace(/src=/, '').replace(/"/g, '');
-    const width = iframe.match(/width="([^\s]+)"/g)[0].match(/\d+/g);
-    const height = iframe.match(/height="([^\s]+)"/g)[0].match(/\d+/g);
-    const ratio = height / width;
     return (
       <div
         onMouseOver={() => this.setState({ activeButton: true })}
         onMouseLeave={() => this.setState({ activeButton: false })}
-        style={{
-          position: 'fixed',
-
-        }}
         >
+        {this.state.activeButton && <div
+          draggable
+          onDrag={this.handleDrag}
+          style={{ cursor: 'move', position: 'fixed', top: y, left: x, zIndex: 300, width: 200 }}
+          >
+          <img role="presentation" src={move} />
+        </div>}
         <div
           draggable
           style={{
             cursor: 'col-resize',
-            position: 'absolute',
+            position: 'fixed',
+            top: y + 40,
             left: this.state.activeMoveLeft ? x - 25 : x,
             height: this.state.width * ratio - 40,
             width: this.state.activeMoveLeft ? 50 : 6,
@@ -154,8 +139,8 @@ class Live extends React.Component {
     );
   }
 }
-Live.propTypes = {
+Moveable.propTypes = {
   iframe: PropTypes.string,
 }
 
-export default Live;
+export default Moveable;
