@@ -1,9 +1,7 @@
 import React, { PropTypes } from 'react';
-import Moveable from './Moveable';
 import close from './components/close';
-import move from './components/move';
-
-const potisions = {
+import Moveable from './Moveable';
+const positions = {
   top: {
     top: 42,
   },
@@ -15,8 +13,8 @@ const potisions = {
   },
   bottom: {
     bottom: 0,
-  }
-}
+  },
+};
 class Live extends React.Component {
   constructor(props) {
     super(props);
@@ -66,22 +64,22 @@ class Live extends React.Component {
         </div>
       );
     }
-    if (this.props.moveable) {
-      return <Moveable {...this.props} />
-    }
     const { iframe } = this.state;
-    const { x, y } = this.state.position;
+    if (this.props.moveable) return <Moveable {...this.props} />
     const url = iframe.match(/src="([^\s]+)"/g)[0].replace(/src=/, '').replace(/"/g, '');
     const width = iframe.match(/width="([^\s]+)"/g)[0].match(/\d+/g);
     const height = iframe.match(/height="([^\s]+)"/g)[0].match(/\d+/g);
     const ratio = height / width;
+    const styles = this.props.position.split(' ').map(pos => positions[pos]).reduce((p, c) => Object.assign({}, p, c), {});
     return (
       <div
         onMouseOver={() => this.setState({ activeButton: true })}
         onMouseLeave={() => this.setState({ activeButton: false })}
         style={{
+          ...styles,
           position: 'fixed',
-
+          zIndex: 10000000000,
+          height: this.state.width * ratio,
         }}
         >
         <div
@@ -89,30 +87,21 @@ class Live extends React.Component {
           style={{
             cursor: 'col-resize',
             position: 'absolute',
-            left: this.state.activeMoveLeft ? x - 25 : x,
-            height: this.state.width * ratio - 40,
+            height: '100%',
+            left: -1,
             width: this.state.activeMoveLeft ? 50 : 6,
-            zIndex: 9999,
+            zIndex: 10000000001,
           }}
-          onDragStart={e => this.setState({ oldX: e.clientX, deltaWidth: this.state.width - e.clientX, activeMoveLeft: true, temp: { ...this.state.position, oldWidth: this.state.width } })}
+          onDragStart={e => this.setState({ oldX: e.clientX, deltaWidth: this.state.width - e.clientX, activeMoveLeft: true, temp: { oldWidth: this.state.width } })}
           onDrag={e => {
             const deltaX = this.state.oldX - e.clientX;
-            const absX = Math.abs(deltaX);
             if (deltaX >= 0) {
               this.setState({
                 width: deltaX + this.state.temp.oldWidth,
-                position: {
-                  x: this.state.temp.x - absX,
-                  y: this.state.temp.y,
-                },
               });
             } else {
               this.setState({
                 width: deltaX + this.state.temp.oldWidth,
-                position: {
-                  x: this.state.temp.x + absX,
-                  y: this.state.temp.y,
-                },
               });
             }
           }}
@@ -122,7 +111,7 @@ class Live extends React.Component {
         <iframe
           draggable
           src={url}
-          style={{ border: 'none', position: 'fixed', top: y, left: x, width: this.state.width, zIndex: 1 }}
+          style={{ border: 'none', zIndex: 1 }}
           width={this.state.width}
           height={this.state.width * ratio}
           frameBorder={0}
@@ -132,12 +121,12 @@ class Live extends React.Component {
           draggable
           style={{
             cursor: 'col-resize',
-            position: 'fixed',
-            top: y,
-            left: this.state.activeMoveRight ? this.state.width + x - 25 : this.state.width + x,
-            height: this.state.width * ratio,
+            position: 'absolute',
+            height: '100%',
+            top: 0,
+            right: -1,
             width: this.state.activeMoveRight ? 50 : 6,
-            zIndex: 9999,
+            zIndex: 10000000001,
           }}
           onDragStart={e => this.setState({ deltaWidth: this.state.width - e.clientX, activeMoveRight: true })}
           onDrag={e => this.setState({ width: e.clientX + this.state.deltaWidth })}
@@ -145,7 +134,7 @@ class Live extends React.Component {
           >
         </div>
         {this.state.activeButton && <div
-          style={{ cursor: 'pointer', position: 'fixed', top: y - 5, left: this.state.width + x - 30, width: 200, zIndex: 9999 }}
+          style={{ position: 'absolute', cursor: 'pointer', top: 5, left: 5, width: '100%', zIndex: 9999 }}
           onClick={() => this.setState({ isHidden: true })}
           >
           <img role="presentation" src={close} />
@@ -156,6 +145,8 @@ class Live extends React.Component {
 }
 Live.propTypes = {
   iframe: PropTypes.string,
-}
+  position: PropTypes.string,
+  moveable: PropTypes.bool,
+};
 
 export default Live;
